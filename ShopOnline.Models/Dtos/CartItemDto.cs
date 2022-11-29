@@ -10,7 +10,7 @@ namespace ShopOnline.Models.Dtos
         public int ProductId { get; set; }
         public string ProductName { get; set; }
         public string ProductDescription { get; set; }
-        public string ProductmageURL { get; set; }
+        public string ProductImageURL { get; set; }
         public decimal Price { get; set; }
         public decimal TotalPrice { get; set; }
         public int Qty { get; set; }
