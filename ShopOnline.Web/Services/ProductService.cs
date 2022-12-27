@@ -1,6 +1,8 @@
 ﻿using ShopOnline.Models.Dtos;
 using ShopOnline.Web.Services.Contracts;
+using System.Net.Http;
 using System.Net.Http.Json;
+using System.Security.Claims;
 
 namespace ShopOnline.Web.Services
 {
@@ -23,7 +25,7 @@ namespace ShopOnline.Web.Services
 
                 var response = await httpClient.GetAsync("api/Product");
 
-                if(response.IsSuccessStatusCode)
+                if (response.IsSuccessStatusCode)
                 {
                     if(response.StatusCode == System.Net.HttpStatusCode.NoContent)
                     {

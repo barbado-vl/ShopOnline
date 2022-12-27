@@ -48,6 +48,7 @@ namespace ShopOnline.Web.Pages
             }
         }
 
+
         protected IOrderedEnumerable<IGrouping<int, ProductDto>> GetGroupedProductsByCategory()
         {
             return from product in Products

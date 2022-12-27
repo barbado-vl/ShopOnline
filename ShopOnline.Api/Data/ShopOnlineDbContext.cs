@@ -1,26 +1,26 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using ShopOnline.Api.Entities;
 
 namespace ShopOnline.Api.Data
 {
-    public class ShopOnlineDbContext:DbContext
+    public class ShopOnlineDbContext : IdentityDbContext<User>
     {
         public DbSet<Product> Products { get; set; }
         public DbSet<Cart> Carts { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
         public DbSet<ProductCategory> ProductCategories { get; set; }
-        public DbSet<User> Users { get; set; }  
         
 
-        public ShopOnlineDbContext(DbContextOptions<ShopOnlineDbContext> options) :base(options)
-        {
+        public ShopOnlineDbContext(DbContextOptions<ShopOnlineDbContext> options) :base(options) { }
 
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
+            
+            #region Products
             //Products
             //Beauty Category
             modelBuilder.Entity<Product>().HasData(new Product
@@ -268,18 +268,33 @@ namespace ShopOnline.Api.Data
                 CategoryId = 4
             });
 
-            //Add users
-            modelBuilder.Entity<User>().HasData(new User
-            {
-                Id = 1,
-                UserName = "Bob"
+            #endregion
 
+            //Add user Admin
+            modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole
+            {
+                Id = "8061452f-3867-4378-9220-ba9194881da8",
+                Name = "admin",
+                NormalizedName = "ADMIN"
             });
+
             modelBuilder.Entity<User>().HasData(new User
             {
-                Id = 2,
-                UserName = "Sarah"
+                UserRole = "Admin",
+                Id = "3bb008b3-c127-47b6-8ad6-59badbfd8d10",
+                UserName = "admin",
+                NormalizedUserName = "ADMIN",
+                Email = "mmail@mail.com",
+                NormalizedEmail = "MMAIL@MAIL.RU",
+                EmailConfirmed = true,
+                PasswordHash = new PasswordHasher<IdentityUser>().HashPassword(null, "123456"),
+                SecurityStamp = string.Empty
+            }); ;
 
+            modelBuilder.Entity<IdentityUserRole<string>>().HasData(new IdentityUserRole<string>
+            {
+                RoleId = "8061452f-3867-4378-9220-ba9194881da8",
+                UserId = "3bb008b3-c127-47b6-8ad6-59badbfd8d10"
             });
 
             //Create Shopping Cart for Users
@@ -289,12 +304,13 @@ namespace ShopOnline.Api.Data
                 UserId = 1
 
             });
-            modelBuilder.Entity<Cart>().HasData(new Cart
+            modelBuilder.Entity<Cart>().HasData(new Cart 
             {
                 Id = 2,
                 UserId = 2
 
             });
+
             //Add Product Categories
             modelBuilder.Entity<ProductCategory>().HasData(new ProductCategory
             {
