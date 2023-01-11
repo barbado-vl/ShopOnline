@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using ShopOnline.Models.Dtos;
+using ShopOnline.Web.Services;
 using ShopOnline.Web.Services.Contracts;
 
 namespace ShopOnline.Web.Pages
@@ -23,6 +25,9 @@ namespace ShopOnline.Web.Pages
         [Inject]
         public NavigationManager NavigationManager { get; set; }
 
+        [CascadingParameter]
+        private Task<AuthenticationState> AuthenticationStateTask { get; set; }
+
         public string ErrorMessage { get; set; }
 
 
@@ -34,11 +39,18 @@ namespace ShopOnline.Web.Pages
 
                 Products = await ManageProductsLocalStorageService.GetCollection();
 
-                var shoppingCartItems = await ManageCartItemsLocalStorageService.GetCollection();
+                if(await UserAuthorised())
+                {
+                    var shoppingCartItems = await ShoppingCartService.GetItems(HardCoded.UserId);
 
-                var totalQty = shoppingCartItems.Sum(i => i.Qty);
+                    var totalQty = shoppingCartItems.Sum(i => i.Qty);
 
-                ShoppingCartService.RaiseEventOnShoppingCartChanged(totalQty);
+                    ShoppingCartService.RaiseEventOnShoppingCartChanged(totalQty);
+                }
+                else
+                {
+                    ShoppingCartService.RaiseEventOnShoppingCartChanged(0);
+                }
 
             }
             catch (Exception ex)
@@ -65,7 +77,19 @@ namespace ShopOnline.Web.Pages
         private async Task ClearLocalStorage()
         {
             await ManageProductsLocalStorageService.RemoveCollection();
-            await ManageCartItemsLocalStorageService.RemoveCollection();
+        }
+
+        private async Task<bool> UserAuthorised()
+        {
+            var authState = await AuthenticationStateTask;
+            var user = authState.User;
+
+            if (user != null && user.Identity.IsAuthenticated)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

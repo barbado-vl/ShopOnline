@@ -8,7 +8,8 @@ namespace ShopOnline.Models.Dtos
 {
     public class UserDto
     {
-        public string UserName { get; set; }
-        public string Password { get; set; }
+        public string ? UserName { get; set; }
+        public string ? UserPassword { get; set; }
+        public string ? UserId { get; set; }
     }
 }

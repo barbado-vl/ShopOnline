@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -44,7 +43,7 @@ namespace ShopOnline.Api
                 })
                 .AddJwtBearer(options =>
                 {
-                options.RequireHttpsMetadata = true;
+                    options.RequireHttpsMetadata = true;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
@@ -59,7 +58,19 @@ namespace ShopOnline.Api
                     };
                 });
 
-            services.AddAuthorization();
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequireDigit = false;
+                options.Password.RequiredLength = 3;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+            });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("CustomerOnly", policy => policy.RequireRole("Customer", "Admin"));
+            });
 
             services.AddScoped<IProductsRepository, ProductRepository>();
             services.AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
@@ -77,7 +88,8 @@ namespace ShopOnline.Api
             app.UseCors(police =>
                 police.WithOrigins("http://localhost:7058", "https://localhost:7058")
                 .AllowAnyMethod()
-                .WithHeaders(HeaderNames.ContentType)
+                .AllowAnyHeader()
+                //.WithHeaders(HeaderNames.ContentType)  // т.к. web client в header присылает JWToken, поэтому используем AllowAnyHeader()
             );
 
             app.UseHttpsRedirection();
@@ -90,6 +102,23 @@ namespace ShopOnline.Api
             app.UseEndpoints(endpoints =>
             {;
                 endpoints.MapControllers();
+            });
+
+
+
+
+            // HttpRequest. Получение данных запроса   https://metanit.com/sharp/aspnet6/2.5.php
+            app.Run(async (context) =>
+            {
+                context.Response.ContentType = "text/html; charset=utf-8";
+                var stringBuilder = new System.Text.StringBuilder("<table>");
+
+                foreach (var header in context.Request.Headers)
+                {
+                    stringBuilder.Append($"<tr><td>{header.Key}</td><td>{header.Value}</td></tr>");
+                }
+                stringBuilder.Append("</table>");
+                await context.Response.WriteAsync(stringBuilder.ToString());
             });
 
         }

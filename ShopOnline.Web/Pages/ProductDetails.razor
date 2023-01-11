@@ -25,14 +25,37 @@ else
                 </b>
             </p>
             <div>
-                <button class="btn btn-success"
-                @onclick ="() => (AddToCart_Click(new CartItemToAddDto{
-                    CartId = HardCoded.CartId,
-                    ProductId = Product.Id,
-                    Qty = 1
-                }))"
-                ><b>Add to Cart</b></button>
+                @if(IsUserAuthorized)
+                {
+                    <button class="btn btn-success"
+                        @onclick ="() => (AddToCart_Click(new CartItemToAddDto{
+                            CartId = HardCoded.CartId,
+                            ProductId = Product.Id,
+                            Qty = 1
+                        }))">
+                        <b>Add to Cart</b>
+                    </button>
+                }
+                else
+                {
+                    <a href="/signup">Sign up</a>
+                    <a href="/login">Log in</a>
+                }
+                @*<button class="btn btn-success"
+                    @onclick ="() => (AddToCart_Click(new CartItemToAddDto{
+                        CartId = HardCoded.CartId,
+                        ProductId = Product.Id,
+                        Qty = 1
+                    }))">
+                    <b>Add to Cart</b>
+                </button>*@
             </div>
         </div>
     </div>
 }
+
+
+<AuthorizeView>
+    <Authorized></Authorized>
+    <NotAuthorized></NotAuthorized>
+</AuthorizeView>

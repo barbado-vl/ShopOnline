@@ -289,7 +289,7 @@ namespace ShopOnline.Api.Data
                 EmailConfirmed = true,
                 PasswordHash = new PasswordHasher<IdentityUser>().HashPassword(null, "123456"),
                 SecurityStamp = string.Empty
-            }); ;
+            });
 
             modelBuilder.Entity<IdentityUserRole<string>>().HasData(new IdentityUserRole<string>
             {
@@ -298,18 +298,18 @@ namespace ShopOnline.Api.Data
             });
 
             //Create Shopping Cart for Users
-            modelBuilder.Entity<Cart>().HasData(new Cart
-            {
-                Id = 1,
-                UserId = 1
+            //modelBuilder.Entity<Cart>().HasData(new Cart
+            //{
+            //    Id = 1,
+            //    UserId = new Guid("3bb008b3-c127-47b6-8ad6-59badbfd8d10")
 
-            });
-            modelBuilder.Entity<Cart>().HasData(new Cart 
-            {
-                Id = 2,
-                UserId = 2
+            //});
+            //modelBuilder.Entity<Cart>().HasData(new Cart 
+            //{
+            //    Id = 2,
+            //    UserId = "3bb008b3-c127-47b6-8ad6-59badbfd8d10"
 
-            });
+            //});
 
             //Add Product Categories
             modelBuilder.Entity<ProductCategory>().HasData(new ProductCategory

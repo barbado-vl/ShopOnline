@@ -23,13 +23,38 @@
 
         <ProductCategoriesNavMenu/>
 
-        <div class="nav-item px-3 d-sm-none">
+        @*<div class="nav-item px-3 d-sm-none">
             <NavLink class="nav-link" href="ShoppingCart">
                 <span class="fas fa-shopping-cart" aria-hidden="true"></span>&nbsp;Shopping Cart (<b>@shoppingCartItemCount</b>)
             </NavLink>
+        </div>*@
+        
+        <div class="nav-item px-3 d-sm-none">
+            <AuthorizeView>
+                <Authorized>
+                    <NavLink class="nav-link" href="ShoppingCart">
+                        <span class="fas fa-shopping-cart" aria-hidden="true"></span>&nbsp;Shopping Cart (<b>@shoppingCartItemCount</b>)
+                     </NavLink>
+                </Authorized>
+            </AuthorizeView>
+        </div>
+
+        <div class="nav-item px-3 d-sm-none">
+            <div class="row px-4">
+                <AuthorizeView>
+                    <Authorized>
+                         <a href="LogOut">Log out</a>
+                    </Authorized>
+                    <NotAuthorized>
+                        <a href="/signup">Sign up</a>
+                        <a href="/login">Log in</a>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </div>
         </div>
     </nav>
 </div>
+
 
 @code {
     private bool collapseNavMenu = true;

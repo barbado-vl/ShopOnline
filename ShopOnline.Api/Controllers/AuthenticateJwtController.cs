@@ -1,28 +1,20 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using ShopOnline.Api.Entities;
-using ShopOnline.Api.Repositories;
 using ShopOnline.Api.Security;
 using ShopOnline.Models.Dtos;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+
 
 namespace ShopOnline.Api.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    [AllowAnonymous]
+    [Route("api/[controller]")]
     public class AuthenticateJwtController : ControllerBase
     {
         private readonly UserManager<User> UserManager;
         private readonly RoleManager<IdentityRole> RoleManager;
 
-        private static TokenParameters TokenParameters => new();
 
         public AuthenticateJwtController(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
         {
@@ -31,8 +23,8 @@ namespace ShopOnline.Api.Controllers
         }
 
 
-        [Route("login")]
         [HttpPost()]
+        [Route("Login")]
         public async Task<IActionResult> Login([FromBody] UserDto login)
         {
             try
@@ -44,24 +36,21 @@ namespace ShopOnline.Api.Controllers
                     return NoContent();
                 }
 
-                var isValidPassword = await UserManager.CheckPasswordAsync(user, login.Password);
+                var isValidPassword = await UserManager.CheckPasswordAsync(user, login.UserPassword);
 
                 if (!isValidPassword)
                 {
-                    throw new Exception($"Invalid password for {user.UserName}");
+                    throw new Exception($"invalid password for {user.UserName}");
                 }
 
-                string accessToken = await GenerateJwtToken(user);
+                string accessToken = await user.GenerateJwt(UserManager, RoleManager);
 
                 if (string.IsNullOrEmpty(accessToken))
                 {
                     throw new Exception($"Token for {user.UserName} was not generate");
                 }
 
-                return Ok(new
-                {
-                    token = accessToken,
-                });
+                return Ok(accessToken);
             }
             catch (Exception ex)
             {
@@ -69,8 +58,8 @@ namespace ShopOnline.Api.Controllers
             }
         }
 
-        [Route("Register")]
         [HttpPost()]
+        [Route("Register")]
         public async Task<IActionResult> Register([FromBody] UserDto login)
         {
             try
@@ -80,28 +69,33 @@ namespace ShopOnline.Api.Controllers
                     throw new Exception($"An empty string or a name with spaces is not allowed");
                 }
 
+                var checkUserName = await UserManager.FindByNameAsync(login.UserName);
+
+                if (checkUserName != null)
+                {
+                    throw new Exception($"User with such name: {login.UserName} is already exist");
+                }
+
                 User user = new()
                 {
                     UserName = login.UserName,
+                    UserRole = "Customer"
                 };
 
-                var result = await UserManager.CreateAsync(user, login.Password);
+                var result = await UserManager.CreateAsync(user, login.UserPassword);
 
                 if (result.Succeeded)
                 {
                     var userIdentity = await UserManager.FindByNameAsync(user.UserName);
 
-                    string accessToken = await GenerateJwtToken(user);
+                    string accessToken = await user.GenerateJwt(UserManager, RoleManager);
 
                     if (string.IsNullOrEmpty(accessToken))
                     {
                         throw new Exception($"Token for {user.UserName} was not generate");
                     }
 
-                    return Ok(new
-                    {
-                        token = accessToken,
-                    });
+                    return Ok(accessToken);
                 }
                 else
                 {
@@ -114,43 +108,25 @@ namespace ShopOnline.Api.Controllers
             }
         }
 
-
-        private async Task<string> GenerateJwtToken(User user)
+        [HttpPost()]
+        [Route("Identify")]
+        public async Task<IActionResult> Identify([FromBody] UserDto login)
         {
-            var claims = new List<Claim>
+            try
             {
-                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")),
-                new(ClaimsIdentity.DefaultNameClaimType, user.UserName),
-                new(ClaimTypes.NameIdentifier, user.Id),
-            };
+                var user = await UserManager.FindByIdAsync(login.UserId);
 
-            var userRoles = await UserManager.GetRolesAsync(user);
-
-            foreach (var userRole in userRoles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, userRole));
-                var role = await RoleManager.FindByNameAsync(userRole);
-
-                if (role != null)
+                if (user == null)
                 {
-                    var roleClaims = await RoleManager.GetClaimsAsync(role);
-
-                    claims.AddRange(roleClaims);
+                    return NoContent();
                 }
+
+                return Ok();
             }
-
-            var key = TokenParameters.GetSymmetricSecurityKey();
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(
-                TokenParameters.Issuer,
-                TokenParameters.Audience,
-                claims,
-                expires: TokenParameters.Expiry,
-                signingCredentials: creds
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
         }
     }
 }

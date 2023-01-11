@@ -50,6 +50,7 @@ namespace ShopOnline.Web.Pages
         {
             return ShoppingCartItems.FirstOrDefault(i => i.Id == id);
         }
+
         private async Task RemoveCartItem(int id)
         {
             var cartItemDto = GetCartItem(id);

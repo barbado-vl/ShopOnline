@@ -52,7 +52,7 @@ namespace ShopOnline.Api.Migrations
                         new
                         {
                             Id = "8061452f-3867-4378-9220-ba9194881da8",
-                            ConcurrencyStamp = "a063c409-e997-4c9e-b71e-fb7ec853ab12",
+                            ConcurrencyStamp = "6221f0b0-b2e1-4f27-974e-1abf2d151444",
                             Name = "admin",
                             NormalizedName = "ADMIN"
                         });
@@ -185,18 +185,6 @@ namespace ShopOnline.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Carts");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            UserId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            UserId = 2
-                        });
                 });
 
             modelBuilder.Entity("ShopOnline.Api.Entities.CartItem", b =>
@@ -589,7 +577,6 @@ namespace ShopOnline.Api.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("UserRole")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -609,13 +596,13 @@ namespace ShopOnline.Api.Migrations
                         {
                             Id = "3bb008b3-c127-47b6-8ad6-59badbfd8d10",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "1f0583ee-0979-4fab-9261-69ca8658c03f",
+                            ConcurrencyStamp = "5dd459fd-0271-467d-b0a4-0162c89a97b2",
                             Email = "mmail@mail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "MMAIL@MAIL.RU",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAED9J8ZOBngzxBynSDL3C9rp3B5rL0hFQL3ANSSD6Cx5Vj817C7fQI0b8ds6GyshQtg==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEDXdJ9dfCpCXLOtiyNBzU/C4qjXvYcRSKpgWNxZiZNc06BfyNHIdjANP9kD/ylxjhQ==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "",
                             TwoFactorEnabled = false,

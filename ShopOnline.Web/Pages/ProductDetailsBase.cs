@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using ShopOnline.Models.Dtos;
 using ShopOnline.Web.Services.Contracts;
 
@@ -30,13 +31,23 @@ namespace ShopOnline.Web.Pages
 
         private List<CartItemDto> ShoppingCartItems { get; set; }
 
+        [CascadingParameter]
+        private Task<AuthenticationState> AuthenticationStateTask { get; set; }
+
+        public bool IsUserAuthorized { get; set; }
+
         protected override async Task OnInitializedAsync()
         {
             try
             {
-                ShoppingCartItems = await ManageCartItemsLocalStorageService.GetCollection();
-                
                 Product = await GetProductById(Id);
+
+                IsUserAuthorized = await UserAuthorised();
+
+                if (IsUserAuthorized)
+                {
+                    ShoppingCartItems = await ManageCartItemsLocalStorageService.GetCollection();
+                }           
             }
             catch (Exception ex)
             {
@@ -46,6 +57,7 @@ namespace ShopOnline.Web.Pages
 
 
         protected async Task AddToCart_Click(CartItemToAddDto cartItemToAddDto)
+
         {
             try
             {
@@ -74,6 +86,19 @@ namespace ShopOnline.Web.Pages
                 return productDtos.SingleOrDefault(p => p.Id == id);
             }
             return null;
+        }
+
+        private async Task<bool> UserAuthorised()
+        {
+            var authState = await AuthenticationStateTask;
+            var user = authState.User;
+
+            if (user != null && user.Identity.IsAuthenticated)
+            {
+                return true;
+            }
+
+            return false;
         }
 
     }

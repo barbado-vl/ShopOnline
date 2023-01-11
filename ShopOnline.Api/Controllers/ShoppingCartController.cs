@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ShopOnline.Api.Entities;
 using ShopOnline.Api.Extensions;
@@ -7,6 +8,7 @@ using ShopOnline.Models.Dtos;
 
 namespace ShopOnline.Api.Controllers
 {
+    [Authorize(Policy = "CustomerOnly")]
     [Route("api/[controller]")]
     [ApiController]
     public class ShoppingCartController : ControllerBase
@@ -19,7 +21,6 @@ namespace ShopOnline.Api.Controllers
             this.shoppingCartRepository = shoppingCartRepository;
             this.productsRepository = productsRepository;
         }
-
 
         [HttpGet]
         [Route("{userId}/GetItems")]
@@ -114,6 +115,7 @@ namespace ShopOnline.Api.Controllers
             }
         }
 
+        
         [HttpDelete("{id:int}")]
         public async Task<ActionResult<CartItemDto>> DeleteItem(int id)
         {

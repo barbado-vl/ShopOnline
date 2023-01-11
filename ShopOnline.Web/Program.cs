@@ -5,6 +5,7 @@ using ShopOnline.Web.Services.Contracts;
 using ShopOnline.Web.Services;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
+using ShopOnline.Web.Security;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -16,6 +17,7 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IShoppingCartService, ShoppingCartService>();
 
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticateService>();
 
 builder.Services.AddOptions();
 builder.Services.AddAuthorizationCore();
