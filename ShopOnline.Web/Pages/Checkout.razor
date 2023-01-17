@@ -11,43 +11,51 @@
             <div style="text-align: center; margin-top: 0.625rem;" id="paypal-button-container"></div>
         </div>
     </div>
-    @if (ShoppingCartItems == null)
-    {
-        <DisplaySpinner/>
-    }
-    else
-    {
-        <div class="col-md-6">
-            <h4 class="mb-2">Payment Summary</h4>
-            @if (ShoppingCartItems.Count() > 0)
+
+    <AuthorizeView>
+        <Authorized>
+            @if (ShoppingCartItems == null)
             {
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Prodyct</th>
-                            <th>Price</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach(var item in ShoppingCartItems)
-                        {
-                            <tr>
-                                <td>@item.Qty x @item.ProductName</td>
-                                <td>@item.TotalPrice.ToString("C")</td>
-                            </tr>
-                        }
-                        <tr>
-                            <td><b>Total</b></td>
-                            <td><b>@PaymentAmount.ToString("C")</b></td>
-                        </tr>
-                    </tbody>
-                </table>
+            <DisplaySpinner/>
             }
             else
             {
-                <p>You currently have no items in your shopping cart</p>
+            <div class="col-md-6">
+                <h4 class="mb-2">Payment Summary</h4>
+                @if (ShoppingCartItems.Count() > 0)
+                {
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Prodyct</th>
+                                <th>Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in ShoppingCartItems)
+                            {
+                                    <tr>
+                                        <td>@item.Qty x @item.ProductName</td>
+                                        <td>@item.TotalPrice.ToString("C")</td>
+                                    </tr>
+                            }
+                            <tr>
+                                <td><b>Total</b></td>
+                                <td><b>@PaymentAmount.ToString("C")</b></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p>You currently have no items in your shopping cart</p>
+                }
+            </div>
             }
-        </div>
-    }
-
+        </Authorized>
+        <NotAuthorized>
+            <a href="/signup">Sign up</a>
+            <a href="/login">Log in</a>
+        </NotAuthorized>
+    </AuthorizeView>
 </div>

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
 using ShopOnline.Models.Dtos;
 using ShopOnline.Web.Services.Contracts;
@@ -13,9 +14,6 @@ namespace ShopOnline.Web.Pages
         [Inject]
         public IShoppingCartService ShoppingCartService { get; set; }
 
-        [Inject]
-        public IManageCartItemsLocalStorageService ManageCartItemsLocalStorageService { get; set; }
-
         public List<CartItemDto> ShoppingCartItems { get; set; }
 
         public string ErrorMessage { get; set; }
@@ -24,11 +22,17 @@ namespace ShopOnline.Web.Pages
 
         protected int TotalQuantity { get; set; }
 
+        [CascadingParameter]
+        private Task<AuthenticationState> AuthenticationStateTask { get; set; }
+
         protected override async Task OnInitializedAsync()
         {
             try
             {
-                ShoppingCartItems = await ManageCartItemsLocalStorageService.GetCollection();
+                if (await UserAuthorised())
+                {
+                    ShoppingCartItems = await ShoppingCartService.GetItems();
+                }
 
                 CartChanged();
             }
@@ -40,24 +44,17 @@ namespace ShopOnline.Web.Pages
 
         protected async Task DeleteCartItem_Click(int id)
         {
-            var cartItemDto = await ShoppingCartService.DeleteItem(id);
+            await ShoppingCartService.DeleteItem(id);
 
-            await RemoveCartItem(id);
+            var cartItemDto = GetCartItem(id);
+
+            ShoppingCartItems.Remove(cartItemDto);
 
             CartChanged();
         }
         private CartItemDto GetCartItem(int id)
         {
             return ShoppingCartItems.FirstOrDefault(i => i.Id == id);
-        }
-
-        private async Task RemoveCartItem(int id)
-        {
-            var cartItemDto = GetCartItem(id);
-
-            ShoppingCartItems.Remove(cartItemDto);
-
-            await ManageCartItemsLocalStorageService.SaveCollection(ShoppingCartItems);
         }
 
         protected async Task UpdateQtyCartItem_Click(int id, int qty)
@@ -74,7 +71,7 @@ namespace ShopOnline.Web.Pages
 
                     var returnedUpdateItemDto = await ShoppingCartService.UpdateItem(updateItemDto);
 
-                    await UpdateItemTotalPrice(returnedUpdateItemDto);
+                    UpdateItemTotalPrice(returnedUpdateItemDto);
 
                     CartChanged();
 
@@ -107,17 +104,16 @@ namespace ShopOnline.Web.Pages
             await Js.InvokeVoidAsync("MakeUpdateQtyButtonVisible", id, visible);
         }
 
-        private async Task UpdateItemTotalPrice(CartItemDto cartItemDto)
+        private void UpdateItemTotalPrice(CartItemDto cartItemDto)
         {
             var item = GetCartItem(cartItemDto.Id);
 
-            if(item != null)
+            if (item != null)
             {
                 item.TotalPrice = cartItemDto.Price * cartItemDto.Qty;
             }
-
-            await ManageCartItemsLocalStorageService.SaveCollection(ShoppingCartItems);
         }
+
         private void CalculateCartSummaryTotals()
         {
             SetTotalPrice();
@@ -137,6 +133,20 @@ namespace ShopOnline.Web.Pages
             CalculateCartSummaryTotals();
 
             ShoppingCartService.RaiseEventOnShoppingCartChanged(TotalQuantity);
+        }
+
+
+        private async Task<bool> UserAuthorised()
+        {
+            var authState = await AuthenticationStateTask;
+            var user = authState.User;
+
+            if (user != null && user.Identity.IsAuthenticated)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

@@ -5,5 +5,6 @@ namespace ShopOnline.Api.Entities
     public class User : IdentityUser
     {
         public string ? UserRole { get; set; }
+        public int CustomerId { get; set; }
     }
 }

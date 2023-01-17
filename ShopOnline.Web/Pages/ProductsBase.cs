@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using ShopOnline.Models.Dtos;
-using ShopOnline.Web.Services;
 using ShopOnline.Web.Services.Contracts;
 
 namespace ShopOnline.Web.Pages
@@ -17,18 +16,15 @@ namespace ShopOnline.Web.Pages
         [Inject]
         public IManageProductsLocalStorageService ManageProductsLocalStorageService { get; set; }
 
-        [Inject]
-        public IManageCartItemsLocalStorageService ManageCartItemsLocalStorageService { get; set; }
-
         public IEnumerable<ProductDto> Products { get; set; }
 
         [Inject]
         public NavigationManager NavigationManager { get; set; }
 
+        public string ErrorMessage { get; set; }
+
         [CascadingParameter]
         private Task<AuthenticationState> AuthenticationStateTask { get; set; }
-
-        public string ErrorMessage { get; set; }
 
 
         protected override async Task OnInitializedAsync()
@@ -39,19 +35,14 @@ namespace ShopOnline.Web.Pages
 
                 Products = await ManageProductsLocalStorageService.GetCollection();
 
-                if(await UserAuthorised())
+                if (await UserAuthorised())
                 {
-                    var shoppingCartItems = await ShoppingCartService.GetItems(HardCoded.UserId);
+                    var shoppingCartItems = await ShoppingCartService.GetItems();
 
                     var totalQty = shoppingCartItems.Sum(i => i.Qty);
 
                     ShoppingCartService.RaiseEventOnShoppingCartChanged(totalQty);
                 }
-                else
-                {
-                    ShoppingCartService.RaiseEventOnShoppingCartChanged(0);
-                }
-
             }
             catch (Exception ex)
             {

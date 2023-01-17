@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShopOnline.Api.Data;
 
@@ -11,9 +12,11 @@ using ShopOnline.Api.Data;
 namespace ShopOnline.Api.Migrations
 {
     [DbContext(typeof(ShopOnlineDbContext))]
-    partial class ShopOnlineDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230112024305_Add_CustomerId")]
+    partial class AddCustomerId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,7 +55,7 @@ namespace ShopOnline.Api.Migrations
                         new
                         {
                             Id = "8061452f-3867-4378-9220-ba9194881da8",
-                            ConcurrencyStamp = "2c4c84a9-5473-486a-aa72-9505dba40b1d",
+                            ConcurrencyStamp = "3cd45245-2ee6-407b-a1c9-700ae4eb87e3",
                             Name = "admin",
                             NormalizedName = "ADMIN"
                         });
@@ -185,18 +188,6 @@ namespace ShopOnline.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Carts");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CustomerId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CustomerId = 2
-                        });
                 });
 
             modelBuilder.Entity("ShopOnline.Api.Entities.CartItem", b =>
@@ -611,14 +602,14 @@ namespace ShopOnline.Api.Migrations
                         {
                             Id = "3bb008b3-c127-47b6-8ad6-59badbfd8d10",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "0f785bea-fca5-474f-afac-936252a2d2b7",
+                            ConcurrencyStamp = "24760bb8-0150-48ee-86f8-133a4e947a9c",
                             CustomerId = 1,
                             Email = "mmail@mail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "MMAIL@MAIL.RU",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEHNlT0Ec4ZQIKNIWrNWUp2MJq2Faf4dojtuqQlaqq5HPiPeNTcyMkUKZLMPtRuNt8g==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEK41GRP3QjJ7xj5iKr3ndsyWsTR8fjk4IWfGY1lutj0+GvBalN9UwCS7GXhj+O1yTQ==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "",
                             TwoFactorEnabled = false,

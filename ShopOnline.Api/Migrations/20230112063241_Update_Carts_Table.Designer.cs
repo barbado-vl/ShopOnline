@@ -12,8 +12,8 @@ using ShopOnline.Api.Data;
 namespace ShopOnline.Api.Migrations
 {
     [DbContext(typeof(ShopOnlineDbContext))]
-    [Migration("20230111062945_Update_CardUserId")]
-    partial class UpdateCardUserId
+    [Migration("20230112063241_Update_Carts_Table")]
+    partial class UpdateCartsTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -55,7 +55,7 @@ namespace ShopOnline.Api.Migrations
                         new
                         {
                             Id = "8061452f-3867-4378-9220-ba9194881da8",
-                            ConcurrencyStamp = "6221f0b0-b2e1-4f27-974e-1abf2d151444",
+                            ConcurrencyStamp = "2c4c84a9-5473-486a-aa72-9505dba40b1d",
                             Name = "admin",
                             NormalizedName = "ADMIN"
                         });
@@ -182,12 +182,24 @@ namespace ShopOnline.Api.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("UserId")
+                    b.Property<int>("CustomerId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.ToTable("Carts");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CustomerId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CustomerId = 2
+                        });
                 });
 
             modelBuilder.Entity("ShopOnline.Api.Entities.CartItem", b =>
@@ -539,6 +551,9 @@ namespace ShopOnline.Api.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -599,13 +614,14 @@ namespace ShopOnline.Api.Migrations
                         {
                             Id = "3bb008b3-c127-47b6-8ad6-59badbfd8d10",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "5dd459fd-0271-467d-b0a4-0162c89a97b2",
+                            ConcurrencyStamp = "0f785bea-fca5-474f-afac-936252a2d2b7",
+                            CustomerId = 1,
                             Email = "mmail@mail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "MMAIL@MAIL.RU",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEDXdJ9dfCpCXLOtiyNBzU/C4qjXvYcRSKpgWNxZiZNc06BfyNHIdjANP9kD/ylxjhQ==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEHNlT0Ec4ZQIKNIWrNWUp2MJq2Faf4dojtuqQlaqq5HPiPeNTcyMkUKZLMPtRuNt8g==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "",
                             TwoFactorEnabled = false,

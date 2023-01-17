@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using ShopOnline.Api.Entities;
 using ShopOnline.Api.Extensions;
 using ShopOnline.Api.Repositories.Contracts;
+using ShopOnline.Api.Security;
 using ShopOnline.Models.Dtos;
+using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 
 namespace ShopOnline.Api.Controllers
 {
@@ -16,27 +17,33 @@ namespace ShopOnline.Api.Controllers
         private readonly IShoppingCartRepository shoppingCartRepository;
         private readonly IProductsRepository productsRepository;
 
-        public ShoppingCartController(IShoppingCartRepository shoppingCartRepository, IProductsRepository productsRepository)
+        public ShoppingCartController(IShoppingCartRepository shoppingCartRepository,
+                                      IProductsRepository productsRepository)
         {
             this.shoppingCartRepository = shoppingCartRepository;
             this.productsRepository = productsRepository;
         }
 
         [HttpGet]
-        [Route("{userId}/GetItems")]
-        public async Task<ActionResult<IEnumerable<CartItemDto>>> GetItems(int userId)
+        [Route("GetItems")]
+        public async Task<ActionResult<IEnumerable<CartItemDto>>> GetItems()
         {
             try
             {
-                var cartItems = await shoppingCartRepository.GetItems(userId);
+                if(!Request.Headers.TryGetValue("Authorization", out var bearerToken))
+                {
+                    return StatusCode(StatusCodes.Status511NetworkAuthenticationRequired);
+                }
 
+                int customerId= await JwtDecoder.JwtDecode(bearerToken);
+
+                var cartItems = await shoppingCartRepository.GetItems(customerId);
                 if (cartItems == null)
                 {
                     return NoContent();
                 }
 
                 var products = await productsRepository.GetItems();
-
                 if (products == null)
                 {
                     throw new Exception("No products exist in the system");
@@ -90,6 +97,15 @@ namespace ShopOnline.Api.Controllers
         {
             try
             {
+                if (!Request.Headers.TryGetValue("Authorization", out var bearerToken))
+                {
+                    return StatusCode(StatusCodes.Status511NetworkAuthenticationRequired);
+                }
+
+                int customerId = await JwtDecoder.JwtDecode(bearerToken);
+
+                cartItemToAddDto.CartId = customerId;
+
                 var newCartItem = await shoppingCartRepository.AddItem(cartItemToAddDto);
 
                 if (newCartItem == null)
@@ -169,8 +185,6 @@ namespace ShopOnline.Api.Controllers
 
 
         }
-
-
 
     }
 }

@@ -5,6 +5,8 @@ namespace ShopOnline.Api.Repositories.Contracts
 {
     public interface IShoppingCartRepository
     {
+        Task CreateCustomerCart(int customerId);
+
         Task<CartItem> AddItem(CartItemToAddDto cartItemToAddDto);
 
         Task<CartItem> UpdateQty(int id, CartItemQtyUpdateDto cartItemQtyUpdateDto);

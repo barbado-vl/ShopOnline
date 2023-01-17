@@ -46,11 +46,11 @@ namespace ShopOnline.Web.Services
             }
         }
 
-        public async Task<List<CartItemDto>> GetItems(int userId)
+        public async Task<List<CartItemDto>> GetItems()
         {
             try
             {
-                var response = await httpClient.GetAsync($"api/ShoppingCart/{userId}/GetItems");
+                var response = await httpClient.GetAsync($"api/ShoppingCart/GetItems");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -97,7 +97,6 @@ namespace ShopOnline.Web.Services
 
         public async Task<CartItemDto> UpdateItem(CartItemQtyUpdateDto cartItemQtyUpdateDto)
         {
-
             try
             {
                 var jsonRequest = JsonConvert.SerializeObject(cartItemQtyUpdateDto);

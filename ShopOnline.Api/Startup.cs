@@ -67,6 +67,17 @@ namespace ShopOnline.Api
                 options.Password.RequireNonAlphanumeric = false;
             });
 
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(
+                            policy =>
+                            {
+                                policy.WithOrigins("http://localhost:7058", "https://localhost:7058")
+                                      .AllowAnyHeader()
+                                      .AllowAnyMethod();
+                            });
+            });
+
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("CustomerOnly", policy => policy.RequireRole("Customer", "Admin"));
@@ -74,6 +85,7 @@ namespace ShopOnline.Api
 
             services.AddScoped<IProductsRepository, ProductRepository>();
             services.AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
+            services.AddScoped<UserRepository>();
         }
 
 
@@ -85,13 +97,6 @@ namespace ShopOnline.Api
                 app.UseSwaggerUI();
             }
 
-            app.UseCors(police =>
-                police.WithOrigins("http://localhost:7058", "https://localhost:7058")
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-                //.WithHeaders(HeaderNames.ContentType)  // т.к. web client в header присылает JWToken, поэтому используем AllowAnyHeader()
-            );
-
             app.UseHttpsRedirection();
 
             app.UseRouting();
@@ -99,28 +104,12 @@ namespace ShopOnline.Api
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseCors();
+
             app.UseEndpoints(endpoints =>
             {;
                 endpoints.MapControllers();
             });
-
-
-
-
-            // HttpRequest. Получение данных запроса   https://metanit.com/sharp/aspnet6/2.5.php
-            app.Run(async (context) =>
-            {
-                context.Response.ContentType = "text/html; charset=utf-8";
-                var stringBuilder = new System.Text.StringBuilder("<table>");
-
-                foreach (var header in context.Request.Headers)
-                {
-                    stringBuilder.Append($"<tr><td>{header.Key}</td><td>{header.Value}</td></tr>");
-                }
-                stringBuilder.Append("</table>");
-                await context.Response.WriteAsync(stringBuilder.ToString());
-            });
-
         }
     }
 }

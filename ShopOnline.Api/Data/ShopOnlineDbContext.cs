@@ -281,6 +281,7 @@ namespace ShopOnline.Api.Data
             modelBuilder.Entity<User>().HasData(new User
             {
                 UserRole = "Admin",
+                CustomerId = 1,
                 Id = "3bb008b3-c127-47b6-8ad6-59badbfd8d10",
                 UserName = "admin",
                 NormalizedUserName = "ADMIN",
@@ -297,19 +298,18 @@ namespace ShopOnline.Api.Data
                 UserId = "3bb008b3-c127-47b6-8ad6-59badbfd8d10"
             });
 
-            //Create Shopping Cart for Users
-            //modelBuilder.Entity<Cart>().HasData(new Cart
-            //{
-            //    Id = 1,
-            //    UserId = new Guid("3bb008b3-c127-47b6-8ad6-59badbfd8d10")
+            //Create Shopping Cart for test-users: admin, user1
+            modelBuilder.Entity<Cart>().HasData(new Cart
+            {
+                Id = 1,
+                CustomerId = 1
+            });
+            modelBuilder.Entity<Cart>().HasData(new Cart
+            {
+                Id = 2,
+                CustomerId = 2,
 
-            //});
-            //modelBuilder.Entity<Cart>().HasData(new Cart 
-            //{
-            //    Id = 2,
-            //    UserId = "3bb008b3-c127-47b6-8ad6-59badbfd8d10"
-
-            //});
+            });
 
             //Add Product Categories
             modelBuilder.Entity<ProductCategory>().HasData(new ProductCategory

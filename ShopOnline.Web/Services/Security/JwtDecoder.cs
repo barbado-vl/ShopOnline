@@ -2,7 +2,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
-namespace ShopOnline.Web.Security
+namespace ShopOnline.Web.Services.Security
 {
     internal static class JwtDecoder
     {

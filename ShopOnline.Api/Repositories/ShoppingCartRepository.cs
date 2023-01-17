@@ -14,13 +14,13 @@ namespace ShopOnline.Api.Repositories
         {
             this.shopOnlineDbContext = shopOnlineDbContext;
         }
-                
-        
+
+
         private async Task<bool> CartItemExists(int cardId, int productId)
         {
             return await shopOnlineDbContext.CartItems.AnyAsync(c => c.CartId == cardId && c.ProductId == productId);
         }
-        
+
         public async Task<CartItem> AddItem(CartItemToAddDto cartItemToAddDto)
         {
             if (await CartItemExists(cartItemToAddDto.CartId, cartItemToAddDto.ProductId) == false)
@@ -45,12 +45,12 @@ namespace ShopOnline.Api.Repositories
             return null;
         }
 
-        public async Task<IEnumerable<CartItem>> GetItems(int userId)
+        public async Task<IEnumerable<CartItem>> GetItems(int customerId)
         {
             return await (from cart in shopOnlineDbContext.Carts
                           join cartItem in shopOnlineDbContext.CartItems
                           on cart.Id equals cartItem.CartId
-                          where cart.UserId == userId
+                          where cart.CustomerId == customerId
                           select new CartItem
                           {
                               Id = cartItem.Id,
@@ -93,7 +93,7 @@ namespace ShopOnline.Api.Repositories
         {
             var item = await shopOnlineDbContext.CartItems.FindAsync(id);
 
-            if(item != null)
+            if (item != null)
             {
                 item.Qty = cartItemQtyUpdateDto.Qty;
                 await shopOnlineDbContext.SaveChangesAsync();
@@ -103,5 +103,16 @@ namespace ShopOnline.Api.Repositories
             return null;
         }
 
+        public async Task CreateCustomerCart(int customerId)
+        {
+            Cart createdCart = new()
+            {
+                CustomerId = customerId,
+            };
+
+            shopOnlineDbContext.Carts.Add(createdCart);
+
+            await shopOnlineDbContext.SaveChangesAsync();
+        }
     }
 }

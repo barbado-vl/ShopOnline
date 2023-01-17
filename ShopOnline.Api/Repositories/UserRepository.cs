@@ -1,22 +1,41 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using ShopOnline.Api.Data;
 using ShopOnline.Api.Entities;
+using ShopOnline.Api.Security;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
-namespace ShopOnline.Api.Security
+namespace ShopOnline.Api.Repositories
 {
-    public static class UserGenerateJwtExtensions
+    public class UserRepository
     {
-        private static TokenParameters tokenParameters => new();
+        internal readonly ShopOnlineDbContext shopOnlineDbContext;
 
-        public static async Task<string> GenerateJwt(this User user, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+        internal readonly UserManager<User> userManager;
+        internal readonly RoleManager<IdentityRole> roleManager;
+
+        private static TokenParameters TokenParameters => new();
+
+
+        public UserRepository(ShopOnlineDbContext shopOnlineDbContext,
+                              UserManager<User> userManager,
+                              RoleManager<IdentityRole> roleManager)
+        {
+            this.shopOnlineDbContext = shopOnlineDbContext;
+            this.userManager = userManager;
+            this.roleManager = roleManager;
+        }
+
+
+        internal async Task<string> GenerateJwt(User user)
         {
             var claims = new List<Claim>
             {
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")),
                 new(ClaimsIdentity.DefaultNameClaimType, user.UserName),
                 new(ClaimTypes.NameIdentifier, user.Id),
+                new("CustomerId", user.CustomerId.ToString()),
             };
 
             if (user.UserRole != null)
@@ -37,18 +56,29 @@ namespace ShopOnline.Api.Security
                 }
             }
 
-            var key = tokenParameters.GetSymmetricSecurityKey();
+            var key = TokenParameters.GetSymmetricSecurityKey();
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                tokenParameters.Issuer,
-                tokenParameters.Audience,
+                TokenParameters.Issuer,
+                TokenParameters.Audience,
                 claims,
-                expires: tokenParameters.Expiry,
+                expires: TokenParameters.Expiry,
                 signingCredentials: creds
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        internal async Task<User> CreateCustomer(string userName)
+        {
+            return new()
+            {
+                UserName = userName,
+                UserRole = "Customer",
+                CustomerId = shopOnlineDbContext.Users.Count() + 1,
+            };
+        }
+
     }
 }

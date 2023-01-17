@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using ShopOnline.Api.Entities;
-using ShopOnline.Api.Security;
+﻿using Microsoft.AspNetCore.Mvc;
+using ShopOnline.Api.Repositories;
+using ShopOnline.Api.Repositories.Contracts;
 using ShopOnline.Models.Dtos;
 
 
@@ -12,16 +10,15 @@ namespace ShopOnline.Api.Controllers
     [Route("api/[controller]")]
     public class AuthenticateJwtController : ControllerBase
     {
-        private readonly UserManager<User> UserManager;
-        private readonly RoleManager<IdentityRole> RoleManager;
+        private readonly UserRepository userRepository;
+        private readonly IShoppingCartRepository shoppingCartRepository;
 
-
-        public AuthenticateJwtController(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+        public AuthenticateJwtController(UserRepository userRepository,
+                                         IShoppingCartRepository shoppingCartRepository)
         {
-            this.UserManager = userManager;
-            this.RoleManager = roleManager;
+            this.userRepository = userRepository;
+            this.shoppingCartRepository = shoppingCartRepository;
         }
-
 
         [HttpPost()]
         [Route("Login")]
@@ -29,21 +26,19 @@ namespace ShopOnline.Api.Controllers
         {
             try
             {
-                var user = await UserManager.FindByNameAsync(login.UserName);
+                var user = await userRepository.userManager.FindByNameAsync(login.UserName);
 
                 if (user == null)
                 {
                     return NoContent();
                 }
 
-                var isValidPassword = await UserManager.CheckPasswordAsync(user, login.UserPassword);
-
-                if (!isValidPassword)
+                if (!await userRepository.userManager.CheckPasswordAsync(user, login.UserPassword))
                 {
                     throw new Exception($"invalid password for {user.UserName}");
                 }
 
-                string accessToken = await user.GenerateJwt(UserManager, RoleManager);
+                string accessToken = await userRepository.GenerateJwt(user);
 
                 if (string.IsNullOrEmpty(accessToken))
                 {
@@ -68,27 +63,22 @@ namespace ShopOnline.Api.Controllers
                 {
                     throw new Exception($"An empty string or a name with spaces is not allowed");
                 }
-
-                var checkUserName = await UserManager.FindByNameAsync(login.UserName);
-
-                if (checkUserName != null)
+                if (await userRepository.userManager.FindByNameAsync(login.UserName) != null)
                 {
                     throw new Exception($"User with such name: {login.UserName} is already exist");
                 }
 
-                User user = new()
-                {
-                    UserName = login.UserName,
-                    UserRole = "Customer"
-                };
+                var user = await userRepository.CreateCustomer(login.UserName);
 
-                var result = await UserManager.CreateAsync(user, login.UserPassword);
+                var result = await userRepository.userManager.CreateAsync(user, login.UserPassword);
 
                 if (result.Succeeded)
                 {
-                    var userIdentity = await UserManager.FindByNameAsync(user.UserName);
+                    var userIdentity = await userRepository.userManager.FindByNameAsync(user.UserName);
 
-                    string accessToken = await user.GenerateJwt(UserManager, RoleManager);
+                    await shoppingCartRepository.CreateCustomerCart(user.CustomerId);
+
+                    string accessToken = await userRepository.GenerateJwt(user);
 
                     if (string.IsNullOrEmpty(accessToken))
                     {
@@ -114,7 +104,7 @@ namespace ShopOnline.Api.Controllers
         {
             try
             {
-                var user = await UserManager.FindByIdAsync(login.UserId);
+                var user = await userRepository.userManager.FindByIdAsync(login.UserId);
 
                 if (user == null)
                 {

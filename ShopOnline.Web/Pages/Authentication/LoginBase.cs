@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
-using ShopOnline.Web.Security;
+using ShopOnline.Web.Services.Security;
 
 namespace ShopOnline.Web.Pages
 {

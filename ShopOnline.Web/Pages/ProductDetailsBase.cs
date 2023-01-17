@@ -22,9 +22,6 @@ namespace ShopOnline.Web.Pages
         [Inject]
         public IManageProductsLocalStorageService ManageProductsLocalStorageService { get; set; }
 
-        [Inject]
-        public IManageCartItemsLocalStorageService ManageCartItemsLocalStorageService { get; set; }
-
         public ProductDto Product { get; set; }
 
         public string ErrorMessage { get; set; }
@@ -34,19 +31,15 @@ namespace ShopOnline.Web.Pages
         [CascadingParameter]
         private Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
-        public bool IsUserAuthorized { get; set; }
-
         protected override async Task OnInitializedAsync()
         {
             try
             {
                 Product = await GetProductById(Id);
 
-                IsUserAuthorized = await UserAuthorised();
-
-                if (IsUserAuthorized)
+                if (await UserAuthorised())
                 {
-                    ShoppingCartItems = await ManageCartItemsLocalStorageService.GetCollection();
+                    ShoppingCartItems = await ShoppingCartService.GetItems();
                 }           
             }
             catch (Exception ex)
@@ -66,7 +59,6 @@ namespace ShopOnline.Web.Pages
                 if (cartItemDto != null)
                 {
                     ShoppingCartItems.Add(cartItemDto);
-                    await ManageCartItemsLocalStorageService.SaveCollection(ShoppingCartItems);
                 }
 
                 NavigationManager.NavigateTo("/ShoppingCart");

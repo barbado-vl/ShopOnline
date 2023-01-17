@@ -1,14 +1,10 @@
 ﻿using Blazored.LocalStorage;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using ShopOnline.Models.Dtos;
-using ShopOnline.Web.Services;
-using ShopOnline.Web.Services.Contracts;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
-namespace ShopOnline.Web.Security
+namespace ShopOnline.Web.Services.Security
 {
     public class AuthenticateService
     {

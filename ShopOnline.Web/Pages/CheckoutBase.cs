@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
 using ShopOnline.Models.Dtos;
 using ShopOnline.Web.Services.Contracts;
@@ -21,23 +22,26 @@ namespace ShopOnline.Web.Pages
         [Inject]
         public IShoppingCartService ShoppingCartService { get; set; }
 
-        [Inject]
-        public IManageCartItemsLocalStorageService ManageCartItemsLocalStorageService { get; set; }
+        [CascadingParameter]
+        private Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
 
         protected override async Task OnInitializedAsync()
         {
             try
             {
-                ShoppingCartItems = await ManageCartItemsLocalStorageService.GetCollection();
-
-                if (ShoppingCartItems != null)
+                if (await UserAuthorised())
                 {
-                    Guid orderGuid = Guid.NewGuid();
+                    ShoppingCartItems = await ShoppingCartService.GetItems();
 
-                    PaymentAmount = ShoppingCartItems.Sum(x => x.TotalPrice);
-                    TotalQty = ShoppingCartItems.Sum(x => x.Qty);
-                    PaymentDescription = $"O_{HardCoded.UserId}_{orderGuid}";
+                    if (ShoppingCartItems != null)
+                    {
+                        Guid orderGuid = Guid.NewGuid();
+
+                        PaymentAmount = ShoppingCartItems.Sum(x => x.TotalPrice);
+                        TotalQty = ShoppingCartItems.Sum(x => x.Qty);
+                        PaymentDescription = $"O_{1}_{orderGuid}";
+                    }
                 }
             }
             catch (Exception)
@@ -61,6 +65,20 @@ namespace ShopOnline.Web.Pages
                 // Log exception
                 throw;
             }
+        }
+
+
+        private async Task<bool> UserAuthorised()
+        {
+            var authState = await AuthenticationStateTask;
+            var user = authState.User;
+
+            if (user != null && user.Identity.IsAuthenticated)
+            {
+                return true;
+            }
+
+            return false;
         }
 
 
