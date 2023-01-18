@@ -8,6 +8,7 @@ Changes:
   using JwtBearer scheme for authentication on server
   add controller for authentification methods
   add login and signin pages
+  change the interface so that it takes into account whether the user is authenticated or not 
   using AspNetCore.Components.Authorization for authorization
   change db from SqlServer to SqlLite
 ```
