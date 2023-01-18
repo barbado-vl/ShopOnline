@@ -68,7 +68,7 @@ namespace ShopOnline.Api.Controllers
                     throw new Exception($"User with such name: {login.UserName} is already exist");
                 }
 
-                var user = await userRepository.CreateCustomer(login.UserName);
+                var user = userRepository.CreateCustomer(login.UserName);
 
                 var result = await userRepository.userManager.CreateAsync(user, login.UserPassword);
 

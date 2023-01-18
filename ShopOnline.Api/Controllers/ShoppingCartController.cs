@@ -35,7 +35,7 @@ namespace ShopOnline.Api.Controllers
                     return StatusCode(StatusCodes.Status511NetworkAuthenticationRequired);
                 }
 
-                int customerId= await JwtDecoder.JwtDecode(bearerToken);
+                int customerId= JwtDecoder.JwtDecode(bearerToken);
 
                 var cartItems = await shoppingCartRepository.GetItems(customerId);
                 if (cartItems == null)
@@ -102,7 +102,7 @@ namespace ShopOnline.Api.Controllers
                     return StatusCode(StatusCodes.Status511NetworkAuthenticationRequired);
                 }
 
-                int customerId = await JwtDecoder.JwtDecode(bearerToken);
+                int customerId = JwtDecoder.JwtDecode(bearerToken);
 
                 cartItemToAddDto.CartId = customerId;
 

@@ -20,6 +20,8 @@ namespace ShopOnline.Web.Pages
 
         [Inject]
         public NavigationManager NavigationManager { get; set; }
+        [Inject]
+        public PageHistoryState PageHistoryState { get; set; }
 
         public string ErrorMessage { get; set; }
 
@@ -42,6 +44,10 @@ namespace ShopOnline.Web.Pages
                     var totalQty = shoppingCartItems.Sum(i => i.Qty);
 
                     ShoppingCartService.RaiseEventOnShoppingCartChanged(totalQty);
+                }
+                else
+                {
+                    PageHistoryState.SetBackPage(NavigationManager.Uri);
                 }
             }
             catch (Exception ex)

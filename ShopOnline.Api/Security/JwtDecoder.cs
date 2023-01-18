@@ -6,7 +6,7 @@ namespace ShopOnline.Api.Security
 {
     public static class JwtDecoder
     {
-        public static async Task<int> JwtDecode(StringValues bearertoken)
+        public static int JwtDecode(StringValues bearertoken)
         {
             var token = bearertoken.ToString().Split(' ').Last();
 

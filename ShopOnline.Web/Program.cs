@@ -16,6 +16,10 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https:/
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IShoppingCartService, ShoppingCartService>();
 
+builder.Services.AddScoped<IManageProductsLocalStorageService, ManageProductsLocalStorageService>();
+
+builder.Services.AddSingleton<PageHistoryState>();
+
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticateService>();
 
@@ -24,8 +28,6 @@ builder.Services.AddAuthorizationCore();
 
 
 builder.Services.AddBlazoredLocalStorage();
-
-builder.Services.AddScoped<IManageProductsLocalStorageService, ManageProductsLocalStorageService>();
 
 
 await builder.Build().RunAsync();

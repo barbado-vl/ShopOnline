@@ -70,7 +70,7 @@ namespace ShopOnline.Api.Repositories
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        internal async Task<User> CreateCustomer(string userName)
+        internal User CreateCustomer(string userName)
         {
             return new()
             {

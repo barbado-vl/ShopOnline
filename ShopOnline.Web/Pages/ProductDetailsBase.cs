@@ -18,6 +18,8 @@ namespace ShopOnline.Web.Pages
 
         [Inject]
         public NavigationManager NavigationManager { get; set; }
+        [Inject]
+        public PageHistoryState PageHistoryState { get; set; }
 
         [Inject]
         public IManageProductsLocalStorageService ManageProductsLocalStorageService { get; set; }
@@ -40,7 +42,11 @@ namespace ShopOnline.Web.Pages
                 if (await UserAuthorised())
                 {
                     ShoppingCartItems = await ShoppingCartService.GetItems();
-                }           
+                }
+                else
+                {
+                    PageHistoryState.SetBackPage(NavigationManager.Uri);
+                }
             }
             catch (Exception ex)
             {

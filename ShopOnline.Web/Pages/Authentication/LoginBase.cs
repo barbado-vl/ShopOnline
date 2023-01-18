@@ -7,8 +7,11 @@ namespace ShopOnline.Web.Pages
     {
         [Inject]
         public AuthenticateService AuthenticateService { get; set; }
+
         [Inject]
         public NavigationManager NavigationManager { get; set; }
+        [Inject]
+        public PageHistoryState PageHistoryState { get; set; }
 
 
         public string AccountName {  get; set; }
@@ -25,7 +28,7 @@ namespace ShopOnline.Web.Pages
                 {
                     if (await AuthenticateService.Login(AccountName, Password))
                     {
-                        NavigationManager.NavigateTo("/");
+                        NavigationManager.NavigateTo(PageHistoryState.PreviousPage);
                     }
                     else
                     {
